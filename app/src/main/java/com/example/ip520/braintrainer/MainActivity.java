@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,14 +30,24 @@ public class MainActivity extends AppCompatActivity {
     TextView go;
 
     private void createQuestion() {
+        HashSet<Integer> set = new HashSet<>();
         question1 = random.nextInt(50);
         question2 = random.nextInt(50);
-        for (int i = 0; i < 4; i++)
-            optionValues[i] = random.nextInt(99);
-        answerOption = random.nextInt(4);
-        optionValues[answerOption] = question2 + question1;
-        for (int i = 0; i < 4; i++)
-            option[i].setText(optionValues[i] + "");
+        while (set.size() < 4)
+            set.add(random.nextInt(99));
+        int i = 0;
+        for (Integer val : set) {
+            optionValues[i] = val;
+            i++;
+        }
+        if (set.contains(question1 + question2))
+            answerOption = Arrays.asList(optionValues).indexOf(question1 + question2);
+        else {
+            answerOption = random.nextInt(4);
+            optionValues[answerOption] = question2 + question1;
+        }
+        for (int j = 0; j < 4; j++)
+            option[j].setText(optionValues[j] + "");
         question.setText(question1 + " + " + question2);
     }
 
