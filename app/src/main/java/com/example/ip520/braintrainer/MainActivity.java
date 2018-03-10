@@ -1,9 +1,12 @@
 package com.example.ip520.braintrainer;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -28,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     int correct = 0;
     Random random = new Random();
     TextView go;
+    SharedPreferences sharedPreferences;
+    String highScoreKey = "highScore";
 
     private void createQuestion() {
         HashSet<Integer> set = new HashSet<>();
@@ -41,7 +46,9 @@ public class MainActivity extends AppCompatActivity {
             i++;
         }
         if (set.contains(question1 + question2))
-            answerOption = Arrays.asList(optionValues).indexOf(question1 + question2);
+            answerOption = Arrays
+                    .asList(optionValues)
+                    .indexOf(question1 + question2);
         else {
             answerOption = random.nextInt(4);
             optionValues[answerOption] = question2 + question1;
@@ -54,14 +61,15 @@ public class MainActivity extends AppCompatActivity {
     public void checkCorrect(View view) {
         totalGamesPlayed++;
         int id = view.getId();
-        String ourId = view.getResources().getResourceEntryName(id);
+        String ourId = view
+                .getResources()
+                .getResourceEntryName(id);
         char optionChosen = ourId.charAt(6);
         if (Character.getNumericValue(optionChosen) == answerOption) {
             correct++;
             result.setText("Correct");
-        } else {
+        } else
             result.setText("Wrong");
-        }
         setScore();
         createQuestion();
     }
@@ -78,12 +86,16 @@ public class MainActivity extends AppCompatActivity {
             option[i].setClickable(true);
         }
         result.setText("");
+        setScore();
         score.setVisibility(View.VISIBLE);
         go.setVisibility(View.INVISIBLE);
         totalGamesPlayed = 0;
         correct = 0;
+        result.setAllCaps(false);
+        result.setTextSize(30f);
+        result.setTextColor(getResources()
+                .getColor(R.color.BLACK));
         createQuestion();
-        result.setVisibility(View.VISIBLE);
         new CountDownTimer(30000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -102,6 +114,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 question.setText("Time Up");
                 result.setText("You have answered " + correct + " out of " + totalGamesPlayed);
+                if (correct == totalGamesPlayed) {
+                    int highScore = sharedPreferences.getInt(highScoreKey, 0);
+                    Log.i("High Score is", String.format("%d", highScore));
+                    if (highScore < correct) {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt(highScoreKey, correct);
+                        editor.commit();
+                    }
+                }
             }
         }.start();
     }
@@ -116,8 +137,16 @@ public class MainActivity extends AppCompatActivity {
         Resources r = getResources();
         String name = getPackageName();
         for (int i = 0; i < 4; i++)
-            option[i] = (TextView) findViewById(r.getIdentifier("option" + i, "id", name));
+            option[i] = (TextView) findViewById(r.getIdentifier("option" + i,
+                    "id", name));
         result = (TextView) findViewById(R.id.result);
+        sharedPreferences = this.getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
+        int highScore = sharedPreferences.getInt(highScoreKey, 0);
+        result.setText(String.format("High Score: %d", highScore));
+        result.setAllCaps(true);
+        result.setTextSize(40f);
+        result.setTextColor(getResources()
+                .getColor(R.color.RED));
         playAgain = (Button) findViewById(R.id.playAgain);
         go = (TextView) findViewById(R.id.go);
         go.setOnClickListener((View view) -> gameStarted());
@@ -128,9 +157,14 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < 4; i++)
                 option[i].setVisibility(View.INVISIBLE);
             score.setVisibility(View.INVISIBLE);
-            result.setVisibility(View.INVISIBLE);
+            int highestScore = sharedPreferences.getInt(highScoreKey, 0);
+            result.setText(String.format("High Score: %d", highestScore));
             playAgain.setVisibility(View.INVISIBLE);
             playAgain.setClickable(false);
+            result.setAllCaps(true);
+            result.setTextSize(40f);
+            result.setTextColor(getResources()
+                    .getColor(R.color.RED));
             go.setClickable(true);
             timeLeft = 30;
         });

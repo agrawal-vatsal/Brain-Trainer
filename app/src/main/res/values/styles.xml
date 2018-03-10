@@ -7,5 +7,13 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="openScreen">
+        <item name="android:textColor">#ff0000</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="playingScreen">
+        <item name="android:textSize">25sp</item>
+    </style>
 
 </resources>
